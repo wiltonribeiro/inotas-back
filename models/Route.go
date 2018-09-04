@@ -2,7 +2,7 @@ package models
 
 import (
 	"github.com/kataras/iris"
-	"inotas/database"
+	"inotas-back/database"
 )
 
 type Route struct {
