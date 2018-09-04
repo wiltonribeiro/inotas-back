@@ -39,9 +39,15 @@ func (filter NFeFilter) getItems(NFe models.NFeRequest) ([]models.Item, []models
 }
 
 func (filter NFeFilter) getShop(NFe models.NFeRequest, email string) (shop models.Compra){
+
+	payment := NFe.PaymentType
+	if len(NFe.Payment) != 0 {
+		payment = NFe.Payment[0].PaymentDetail[0].Method
+	}
+
 	shop = models.Compra{
 		NFeKey: NFe.Protocol.AccessKey,
-		FormaPagamento: NFe.PaymentType,
+		FormaPagamento: payment,
 		UsuarioEmail:email,
 		DataCompra: NFe.IssuedOn,
 		VendedorCnpj: NFe.Issuer.FederalTaxNumber,
