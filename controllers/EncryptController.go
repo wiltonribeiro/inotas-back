@@ -8,7 +8,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"inotas-back/models"
-	"fmt"
 )
 
 type EncryptController struct {
@@ -57,7 +56,6 @@ func (controller EncryptController) Decrypt(hexData string) (string, error) {
 		return "", err
 	}
 	nonceSize := gcm.NonceSize()
-	fmt.Println(len([]byte(hexData)))
 	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
 	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 	return string(plaintext[:]), err
