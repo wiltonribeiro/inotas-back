@@ -43,7 +43,7 @@ func InitAll(){
 		routes.StateRoute,
 		routes.CityRoute,
 		routes.NFeRoute,
-		routes.LoginRoute,
+		routes.UserRoute,
 	}
 	initRoutes(r, &db)
 	defer db.Close()
