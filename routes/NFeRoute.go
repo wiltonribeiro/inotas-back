@@ -10,7 +10,7 @@ import (
 var NFeRoute = models.Route{
 	func (application* iris.Application, con* database.Connection){
 
-		controller := controllers.NFeController{con}
+		controller := controllers.NFeController{DataBase:con}
 
 		application.Handle("GET", "/nfe/{key}", func(ctx iris.Context) {
 			data, err := controller.GetContent("willrcneto@gmail.com", ctx.Params().Get("key"))
