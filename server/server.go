@@ -40,9 +40,10 @@ func initRoutes(routes []models.Route, db* database.Connection){
 func InitAll(){
 	db := initDB()
 	r := []models.Route{
-		routes.EstadoRoute,
-		routes.CidadeRoute,
+		routes.StateRoute,
+		routes.CityRoute,
 		routes.NFeRoute,
+		routes.LoginRoute,
 	}
 	initRoutes(r, &db)
 	defer db.Close()

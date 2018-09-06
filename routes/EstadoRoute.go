@@ -7,10 +7,10 @@ import (
 	"inotas-back/controllers"
 )
 
-var EstadoRoute = models.Route{
+var StateRoute = models.Route{
 	func (application* iris.Application, con* database.Connection){
 
-		controller := controllers.LocationController{con}
+		controller := controllers.LocationController{DataBase:con}
 
 		application.Handle("GET", "/estados", func(ctx iris.Context) {
 			data := controller.GetStates()
