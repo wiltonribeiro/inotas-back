@@ -3,10 +3,11 @@ package controllers
 import (
 	"github.com/dgrijalva/jwt-go"
 	"inotas-back/enviroment"
+	"fmt"
 )
 
 type AuthController struct {
-	Email string
+
 }
 
 type Claim struct {
@@ -14,10 +15,10 @@ type Claim struct {
 	jwt.StandardClaims
 }
 
-func (controller AuthController) GenerateAuth() (tokenString string, err error){
+func (controller AuthController) GenerateAuth(email string) (tokenString string, err error){
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": controller.Email,
+		"email": email,
 	})
 
 	mySigningKey := enviroment.SecretKey
@@ -26,14 +27,15 @@ func (controller AuthController) GenerateAuth() (tokenString string, err error){
 	return
 }
 
-func (controller AuthController) CheckAuth(tokenString string) (err error){
+func (controller AuthController) CheckAuth(tokenString string) (email string,err error){
 
 	token, err := jwt.ParseWithClaims(tokenString, &Claim{}, func(token *jwt.Token) (interface{}, error) {
 		return enviroment.SecretKey, nil
 	})
 
-	if _, ok := token.Claims.(*Claim); !(ok && token.Valid) {
-		return err
+	if claims, ok := token.Claims.(*Claim); ok && token.Valid {
+		return fmt.Sprint(claims.Email), nil
 	}
-	return nil
+
+	return
 }
