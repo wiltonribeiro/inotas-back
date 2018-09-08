@@ -46,12 +46,36 @@ var UserRoute = models.Route{
 			err := ctx.ReadJSON(&user)
 
 			if err != nil {
+				ctx.StatusCode(505)
 				ctx.JSON(models.Error{
 					Message:fmt.Sprint(err),
 					Code:505,
 				})
 			} else {
 				err := userController.Register(&user)
+				if err != (models.Error{}){
+					ctx.StatusCode(err.Code)
+					ctx.JSON(err)
+				}
+				ctx.StatusCode(200)
+			}
+		})
+
+		application.Handle("POST", "/changePassword", func(ctx iris.Context){
+			request := struct {
+				Token string `json:"token"`
+				NewPassword string `json:"password"`
+			}{}
+
+			err := ctx.ReadJSON(&request)
+			if err != nil {
+				ctx.StatusCode(505)
+				ctx.JSON(models.Error{
+					Message:fmt.Sprint(err),
+					Code:505,
+				})
+			} else {
+				err := userController.ChangePassword(request.Token, request.NewPassword)
 				if err != (models.Error{}){
 					ctx.StatusCode(err.Code)
 					ctx.JSON(err)
