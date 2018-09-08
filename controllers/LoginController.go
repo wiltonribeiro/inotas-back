@@ -43,11 +43,9 @@ func (controller LoginController) checkLogin(search Exists, email string, passwo
 	ePass, err := encrypt.Decrypt(search.Password)
 
 	if ePass == password && err == nil {
-		authControl := AuthController{
-			Email:email,
-		}
+		authControl := AuthController{}
 
-		token,_ := authControl.GenerateAuth()
+		token,_ := authControl.GenerateAuth(email)
 		return struct {
 			Token string `json:"token"`
 		}{
