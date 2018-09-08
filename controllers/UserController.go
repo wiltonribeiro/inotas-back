@@ -40,3 +40,35 @@ func (controller UserController) Register(user* models.Usuario) (error models.Er
 
 	return
 }
+
+func (controller UserController) ChangePassword(auth, newPassword string) (error models.Error){
+	authControl := AuthController{}
+	encryptControl := EncryptController{enviroment.SecretKey}
+
+	email, err  := authControl.CheckAuth(auth)
+	if err != nil {
+		return models.Error{
+			Code:403,
+			Message:fmt.Sprint(err),
+		}
+	} else {
+		password, err := encryptControl.Encrypt([]byte(newPassword))
+		if err != (models.Error{}){
+			return err
+		}
+		return controller.updatePassword(password, email)
+	}
+}
+
+func (controller UserController) updatePassword(encryptPass, email string) (error models.Error) {
+	query := "UPDATE usuario SET senha = $1 WHERE email = $2"
+	stmt, err := controller.DataBase.GetDB().Prepare(query)
+	if err != nil {
+		return models.Error{
+			Code:505,
+			Message:fmt.Sprint(err),
+		}
+	}
+	stmt.Exec(encryptPass,email)
+	return
+}
