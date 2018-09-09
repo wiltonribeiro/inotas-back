@@ -11,17 +11,17 @@ type UserController struct {
 	DataBase* database.Connection
 }
 
-func (controller UserController) Register(user* models.Usuario) (error models.Error){
+func (controller UserController) Register(user* models.User) (error models.Error){
 
 	var result string
 	encrypt := EncryptController{enviroment.SecretKey}
-	result, error = encrypt.Encrypt([]byte(user.Senha))
+	result, error = encrypt.Encrypt([]byte(user.Password))
 	if error != (models.Error{}) {
 		return error
 	}
 
-	user.Senha = result
-	query := "INSERT INTO usuario(email,senha,id_cidade,sigla_estado,nome) VALUES ($1,$2,$3,$4,$5)"
+	user.Password = result
+	query := "INSERT INTO \"user\" (email,password,city_id,state_initials,name) VALUES ($1,$2,$3,$4,$5)"
 	stmt, err := controller.DataBase.GetDB().Prepare(query)
 	if err != nil {
 		return models.Error{
@@ -30,7 +30,7 @@ func (controller UserController) Register(user* models.Usuario) (error models.Er
 		}
 	}
 
-	_,err = stmt.Exec(user.Email, user.Senha, user.IdCidade, user.SiglaEstado, user.Nome)
+	_,err = stmt.Exec(user.Email, user.Password, user.CityId, user.StateInitials, user.Name)
 	if err != nil {
 		return models.Error{
 			Code:409,
@@ -61,7 +61,7 @@ func (controller UserController) ChangePassword(auth, newPassword string) (error
 }
 
 func (controller UserController) updatePassword(encryptPass, email string) (error models.Error) {
-	query := "UPDATE usuario SET senha = $1 WHERE email = $2"
+	query := "UPDATE \"user\" SET password = $1 WHERE email = $2"
 	stmt, err := controller.DataBase.GetDB().Prepare(query)
 	if err != nil {
 		return models.Error{

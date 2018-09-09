@@ -9,27 +9,27 @@ type NFeFilter struct {
 
 }
 
-func (filter NFeFilter) getItems(NFe models.NFeRequest) ([]models.Item, []models.Produto){
+func (filter NFeFilter) getItems(NFe models.NFeRequest) ([]models.Item, []models.Product){
 	var items []models.Item
-	var products []models.Produto
+	var products []models.Product
 	for _, data := range NFe.Items {
 		idGenerate,_ := uuid.NewV4()
 
-		product := models.Produto{
-			Descricao:data.Description,
+		product := models.Product{
+			Description:data.Description,
 			Id: idGenerate.String(),
 			Code: data.Code,
-			CetegoriaId: 0,
-			Unidade: data.Unit,
-			ValorUnidade:data.UnitAmount,
+			CategoryId: 0,
+			Unity: data.Unit,
+			UnityCost:data.UnitAmount,
 		}
 		products = append(products, product)
 
 		item := models.Item{
-			CompraNFeKey:NFe.Protocol.AccessKey,
-			ProdutoId: idGenerate.String(),
-			Qntd:data.Quantity,
-			ValorTotal:data.TotalAmount,
+			ShopKey:NFe.Protocol.AccessKey,
+			ProductId: idGenerate.String(),
+			Quantity:data.Quantity,
+			TotalCost:data.TotalAmount,
 		}
 
 		items = append(items, item)
@@ -38,36 +38,36 @@ func (filter NFeFilter) getItems(NFe models.NFeRequest) ([]models.Item, []models
 	return items, products
 }
 
-func (filter NFeFilter) getShop(NFe models.NFeRequest, email string) (shop models.Compra){
+func (filter NFeFilter) getShop(NFe models.NFeRequest, email string) (shop models.Shop){
 
 	payment := NFe.PaymentType
 	if len(NFe.Payment) != 0 {
 		payment = NFe.Payment[0].PaymentDetail[0].Method
 	}
 
-	shop = models.Compra{
+	shop = models.Shop{
 		NFeKey: NFe.Protocol.AccessKey,
-		FormaPagamento: payment,
-		UsuarioEmail:email,
-		DataCompra: NFe.IssuedOn,
-		VendedorCnpj: NFe.Issuer.FederalTaxNumber,
-		Total:NFe.Totals.Icms.ProductAmount,
+		Payment: payment,
+		UserEmail:email,
+		Date: NFe.IssuedOn,
+		SellerCnpj: NFe.Issuer.FederalTaxNumber,
+		TotalCost:NFe.Totals.Icms.ProductAmount,
 	}
 	return
 }
 
-func (filter NFeFilter) getSeller(NFe models.NFeRequest) (seller models.Vendedor){
-	seller = models.Vendedor{
+func (filter NFeFilter) getSeller(NFe models.NFeRequest) (seller models.Seller){
+	seller = models.Seller{
 		Cnpj: NFe.Issuer.FederalTaxNumber,
-		Nome: NFe.Issuer.Name,
-		Cep: NFe.Issuer.Address.PostalCode,
-		SiglaEstado:NFe.Issuer.Address.State,
-		Distrito:NFe.Issuer.Address.District,
-		Rua:NFe.Issuer.Address.Street,
-		InfoAdicional:NFe.Issuer.Address.AdditionalInformation,
-		Numero:NFe.Issuer.Address.Number,
-		Cidade: NFe.Issuer.Address.City.Name,
-		IdCidade: 0,
+		Name: NFe.Issuer.Name,
+		PostalCode: NFe.Issuer.Address.PostalCode,
+		StateInitials:NFe.Issuer.Address.State,
+		District:NFe.Issuer.Address.District,
+		Street:NFe.Issuer.Address.Street,
+		OtherInfo:NFe.Issuer.Address.AdditionalInformation,
+		Number:NFe.Issuer.Address.Number,
+		City: NFe.Issuer.Address.City.Name,
+		CityId: 0,
 	}
 
 	return

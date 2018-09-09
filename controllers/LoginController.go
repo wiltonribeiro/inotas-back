@@ -16,7 +16,7 @@ type Exists struct {
 }
 
 func (controller LoginController) Login(email, password string) (interface{}){
-	query := "SELECT senha FROM usuario WHERE email=$1"
+	query := "SELECT password FROM \"user\" WHERE email=$1"
 	stmt, err := controller.DataBase.GetDB().Prepare(query)
 	if err != nil {
 		return models.Error{

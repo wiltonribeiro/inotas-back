@@ -42,7 +42,7 @@ var UserRoute = models.Route{
 		})
 
 		application.Handle("POST", "/register", func(ctx iris.Context){
-			var user models.Usuario
+			var user models.User
 			err := ctx.ReadJSON(&user)
 
 			if err != nil {
