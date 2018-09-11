@@ -2,6 +2,7 @@ package models
 
 type Shop struct {
 	NFeKey string `json:"nfe_key"`
+	Alias string `json:"alias"`
 	UserEmail string `json:"user_email"`
 	SellerCnpj string `json:"seller_cnpj"`
 	Date string `json:"date"`
