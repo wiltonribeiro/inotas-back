@@ -5,6 +5,7 @@ import (
 	"inotas-back/models"
 	"fmt"
 	"inotas-back/enviroment"
+	"errors"
 )
 
 type LoginController struct {
@@ -29,10 +30,7 @@ func (controller LoginController) Login(email, password string) (interface{}){
 	value.Scan(&search.Password)
 
 	if search.Password == "" {
-		return models.Error{
-			Code:404,
-			Message:"User not exist",
-		}
+		return  models.ErrorResponse(errors.New("user not exist"), 404)
 	}
 
 	return controller.checkLogin(search,email, password)
@@ -53,8 +51,5 @@ func (controller LoginController) checkLogin(search Exists, email string, passwo
 		}
 	}
 
-	return models.Error{
-		Code:404,
-		Message:"Password incorrect",
-	}
+	return models.ErrorResponse(errors.New("password incorrect"), 404)
 }

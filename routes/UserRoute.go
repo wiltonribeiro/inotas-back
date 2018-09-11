@@ -5,7 +5,6 @@ import (
 	"github.com/kataras/iris"
 	"inotas-back/database"
 	"inotas-back/controllers"
-	"fmt"
 )
 
 type loginRequest struct {
@@ -27,10 +26,7 @@ var UserRoute = models.Route{
 
 			if err != nil {
 				ctx.StatusCode(505)
-				ctx.JSON(models.Error{
-					Message:fmt.Sprint(err),
-					Code:505,
-				})
+				ctx.JSON(models.ErrorResponse(err, 505))
 			} else {
 				data := loginController.Login(request.Email, request.Password)
 				switch data.(type) {
@@ -47,10 +43,7 @@ var UserRoute = models.Route{
 
 			if err != nil {
 				ctx.StatusCode(505)
-				ctx.JSON(models.Error{
-					Message:fmt.Sprint(err),
-					Code:505,
-				})
+				ctx.JSON(models.ErrorResponse(err, 505))
 			} else {
 				err := userController.Register(&user)
 				if err != (models.Error{}){
@@ -63,19 +56,15 @@ var UserRoute = models.Route{
 
 		application.Handle("POST", "/changePassword", func(ctx iris.Context){
 			request := struct {
-				Token string `json:"token"`
 				NewPassword string `json:"password"`
 			}{}
 
 			err := ctx.ReadJSON(&request)
 			if err != nil {
 				ctx.StatusCode(505)
-				ctx.JSON(models.Error{
-					Message:fmt.Sprint(err),
-					Code:505,
-				})
+				ctx.JSON(models.ErrorResponse(err, 505))
 			} else {
-				err := userController.ChangePassword(request.Token, request.NewPassword)
+				err := userController.ChangePassword(ctx.GetHeader("Authorization"), request.NewPassword)
 				if err != (models.Error{}){
 					ctx.StatusCode(err.Code)
 					ctx.JSON(err)

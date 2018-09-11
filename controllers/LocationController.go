@@ -55,7 +55,6 @@ func (controller LocationController) GetCitiesByState(initials string)(cities []
 	}
 
 	rows.Close()
-
 	return
 }
 

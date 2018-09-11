@@ -25,10 +25,7 @@ func (controller EncryptController) Encrypt(data []byte) (ciphertext string, err
 	block, _ := aes.NewCipher([]byte(createHash(string(controller.pass[:]))))
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		error = models.Error{
-			Message:"Internal error",
-			Code:505,
-		}
+		error = models.ErrorResponse(err, 505)
 		return
 	}
 

@@ -52,6 +52,7 @@ func (filter NFeFilter) getShop(NFe models.NFeRequest, email string) (shop model
 		Date: NFe.IssuedOn,
 		SellerCnpj: NFe.Issuer.FederalTaxNumber,
 		TotalCost:NFe.Totals.Icms.ProductAmount,
+		Alias:"COMPRA REGISTRADA PELO INOTAS",
 	}
 	return
 }
@@ -88,6 +89,3 @@ func (filter NFeFilter) FilterData(email string, NFe models.NFeRequest) (chan in
 	}()
 	return c
 }
-
-
-

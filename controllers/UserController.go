@@ -3,7 +3,6 @@ package controllers
 import (
 	"inotas-back/database"
 	"inotas-back/models"
-	"fmt"
 	"inotas-back/enviroment"
 )
 
@@ -24,33 +23,24 @@ func (controller UserController) Register(user* models.User) (error models.Error
 	query := "INSERT INTO \"user\" (email,password,city_id,state_initials,name) VALUES ($1,$2,$3,$4,$5)"
 	stmt, err := controller.DataBase.GetDB().Prepare(query)
 	if err != nil {
-		return models.Error{
-			Code:403,
-			Message:fmt.Sprint(err),
-		}
+		return  models.ErrorResponse(err, 403)
 	}
 
 	_,err = stmt.Exec(user.Email, user.Password, user.CityId, user.StateInitials, user.Name)
 	if err != nil {
-		return models.Error{
-			Code:409,
-			Message:fmt.Sprint(err),
-		}
+		return models.ErrorResponse(err, 409)
 	}
 
 	return
 }
 
-func (controller UserController) ChangePassword(auth, newPassword string) (error models.Error){
+func (controller UserController) ChangePassword(token, newPassword string) (error models.Error){
 	authControl := AuthController{}
 	encryptControl := EncryptController{enviroment.SecretKey}
 
-	email, err  := authControl.CheckAuth(auth)
+	email, err  := authControl.CheckAuth(token)
 	if err != nil {
-		return models.Error{
-			Code:403,
-			Message:fmt.Sprint(err),
-		}
+		return models.ErrorResponse(err, 403)
 	} else {
 		password, err := encryptControl.Encrypt([]byte(newPassword))
 		if err != (models.Error{}){
@@ -64,10 +54,7 @@ func (controller UserController) updatePassword(encryptPass, email string) (erro
 	query := "UPDATE \"user\" SET password = $1 WHERE email = $2"
 	stmt, err := controller.DataBase.GetDB().Prepare(query)
 	if err != nil {
-		return models.Error{
-			Code:505,
-			Message:fmt.Sprint(err),
-		}
+		return models.ErrorResponse(err, 505)
 	}
 	stmt.Exec(encryptPass,email)
 	return

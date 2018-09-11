@@ -3,7 +3,6 @@ package controllers
 import (
 	"inotas-back/database"
 	"inotas-back/models"
-	"fmt"
 )
 
 type CategoryController struct {
@@ -14,10 +13,7 @@ func (controller CategoryController) GetCategories() (data []models.Category, er
 	query := "SELECT * FROM category"
 	rows, err := controller.DataBase.GetDB().Query(query)
 	if err != nil {
-		return data,models.Error{
-			Code:505,
-			Message:fmt.Sprint(err),
-		}
+		return data, models.ErrorResponse(err, 505)
 	}
 
 	for rows.Next(){
@@ -25,6 +21,6 @@ func (controller CategoryController) GetCategories() (data []models.Category, er
 		rows.Scan(&category.Id,&category.Name, &category.StateInitials)
 		data = append(data, category)
 	}
-
+	rows.Close()
 	return
 }

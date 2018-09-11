@@ -4,7 +4,6 @@ import (
 	"inotas-back/models"
 	"inotas-back/database"
 	"net/http"
-	"fmt"
 	"io/ioutil"
 	"encoding/json"
 	"github.com/kataras/iris/core/errors"
@@ -16,7 +15,7 @@ type NFeController struct {
 	DataBase* database.Connection
 }
 
-func (controller NFeController) requestNFe(key string) (err error ,NFe* models.NFeRequest){
+func (controller NFeController) requestNFe(key string) (NFe* models.NFeRequest, err error){
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://nfe.api.nfe.io/v2/productinvoices/"+key,nil)
 	req.Header.Add("Authorization",enviroment.AuthAPI)
@@ -28,15 +27,17 @@ func (controller NFeController) requestNFe(key string) (err error ,NFe* models.N
 	} else {
 		body, _ := ioutil.ReadAll(resp.Body)
 		err = json.Unmarshal([]byte(body), &NFe)
-		return err, NFe
+		return NFe, err
 	}
 }
 
-func (controller NFeController) GetContent(email, key string) (interface{}, error){
+func (controller NFeController) GetContent(token, key string) (interface{}, error){
 	var err error = nil
-	err , NFe := controller.requestNFe(key)
+	NFe, err := controller.requestNFe(key)
+
+	authControl := AuthController{}
+	email, err  := authControl.CheckAuth(token)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	filter := NFeFilter{}
@@ -66,8 +67,10 @@ func (controller NFeController) GetContent(email, key string) (interface{}, erro
 
 	err = controller.saveSeller(&jsonFormat.Seller)
 	err = controller.saveShop(jsonFormat.Shop)
-	err = controller.saveProducts(jsonFormat.Products)
-	err = controller.saveItems(jsonFormat.Items)
+	if err == nil {
+		err = controller.saveProducts(jsonFormat.Products)
+		err = controller.saveItems(jsonFormat.Items)
+	}
 
 	return jsonFormat, err
 }
@@ -89,8 +92,8 @@ func (controller NFeController) saveItems(items []models.Item) (err error){
 }
 
 func (controller NFeController) saveShop(shop models.Shop) (err error){
-	stmt, _ := controller.DataBase.GetDB().Prepare("INSERT INTO shop(nfe_key, total_cost, payment, date, user_email, seller_cnpj) values($1,$2,$3,$4,$5,$6)")
-	_ ,err = stmt.Exec(shop.NFeKey, shop.TotalCost, shop.Payment, shop.Date, shop.UserEmail, shop.SellerCnpj)
+	stmt, _ := controller.DataBase.GetDB().Prepare("INSERT INTO shop(nfe_key, total_cost, payment, date, user_email, seller_cnpj, alias) values($1,$2,$3,$4,$5,$6,$7)")
+	_ ,err = stmt.Exec(shop.NFeKey, shop.TotalCost, shop.Payment, shop.Date, shop.UserEmail, shop.SellerCnpj, shop.Alias)
 	return
 }
 
