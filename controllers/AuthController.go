@@ -4,6 +4,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"inotas-back/enviroment"
 	"fmt"
+	"github.com/kataras/iris/core/errors"
 )
 
 type AuthController struct {
@@ -33,9 +34,14 @@ func (controller AuthController) CheckAuth(tokenString string) (email string,err
 		return enviroment.SecretKey, nil
 	})
 
-	if claims, ok := token.Claims.(*Claim); ok && token.Valid {
-		return fmt.Sprint(claims.Email), nil
+	if err != nil {
+		return "", err
 	}
 
-	return
+	claims, ok := token.Claims.(*Claim)
+	if ok && token.Valid {
+		return fmt.Sprint(claims.Email), nil
+	} else {
+		return "", errors.New("invalid access")
+	}
 }
