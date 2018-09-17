@@ -17,7 +17,7 @@ func checkFail(err error){
 }
 
 func initDB() (con database.Connection){
-	con, err := database.CreateConnection(enviroment.DbUser,enviroment.DbPassword,enviroment.DbName)
+	con, err := database.CreateConnection(enviroment.DbHost,enviroment.DbName,enviroment.DbUser,enviroment.DbPassword)
 	checkFail(err)
 	return
 }
@@ -46,6 +46,7 @@ func InitAll(){
 		routes.UserRoute,
 		routes.CategoryRoute,
 		routes.ShopRoute,
+		routes.WelcomeRoute,
 	}
 	initRoutes(r, &db)
 	defer db.Close()
