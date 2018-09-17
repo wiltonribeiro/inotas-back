@@ -30,7 +30,7 @@ func (controller LoginController) Login(email, password string) (interface{}){
 	value.Scan(&search.Password)
 
 	if search.Password == "" {
-		return  models.ErrorResponse(errors.New("user not exist"), 404)
+		return  models.ErrorResponse(errors.New("user not exist"), 403)
 	}
 
 	return controller.checkLogin(search,email, password)
@@ -51,5 +51,5 @@ func (controller LoginController) checkLogin(search Exists, email string, passwo
 		}
 	}
 
-	return models.ErrorResponse(errors.New("password incorrect"), 404)
+	return models.ErrorResponse(errors.New("password incorrect"), 403)
 }

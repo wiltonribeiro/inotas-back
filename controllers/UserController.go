@@ -23,14 +23,13 @@ func (controller UserController) Register(user* models.User) (error models.Error
 	query := "INSERT INTO \"user\" (email,password,city_id,state_initials,name) VALUES ($1,$2,$3,$4,$5)"
 	stmt, err := controller.DataBase.GetDB().Prepare(query)
 	if err != nil {
-		return  models.ErrorResponse(err, 403)
+		return  models.ErrorResponse(err, 401)
 	}
 
 	_,err = stmt.Exec(user.Email, user.Password, user.CityId, user.StateInitials, user.Name)
 	if err != nil {
 		return models.ErrorResponse(err, 409)
 	}
-
 	return
 }
 
@@ -40,7 +39,7 @@ func (controller UserController) ChangePassword(token, newPassword string) (erro
 
 	email, err  := authControl.CheckAuth(token)
 	if err != nil {
-		return models.ErrorResponse(err, 403)
+		return models.ErrorResponse(err, 401)
 	} else {
 		password, err := encryptControl.Encrypt([]byte(newPassword))
 		if err != (models.Error{}){
@@ -54,7 +53,7 @@ func (controller UserController) updatePassword(encryptPass, email string) (erro
 	query := "UPDATE \"user\" SET password = $1 WHERE email = $2"
 	stmt, err := controller.DataBase.GetDB().Prepare(query)
 	if err != nil {
-		return models.ErrorResponse(err, 505)
+		return models.ErrorResponse(err, 500)
 	}
 	stmt.Exec(encryptPass,email)
 	return

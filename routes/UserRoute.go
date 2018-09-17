@@ -25,8 +25,8 @@ var UserRoute = models.Route{
 			err := ctx.ReadJSON(&request)
 
 			if err != nil {
-				ctx.StatusCode(505)
-				ctx.JSON(models.ErrorResponse(err, 505))
+				ctx.StatusCode(500)
+				ctx.JSON(models.ErrorResponse(err, 500))
 			} else {
 				data := loginController.Login(request.Email, request.Password)
 				switch data.(type) {
@@ -42,8 +42,8 @@ var UserRoute = models.Route{
 			err := ctx.ReadJSON(&user)
 
 			if err != nil {
-				ctx.StatusCode(505)
-				ctx.JSON(models.ErrorResponse(err, 505))
+				ctx.StatusCode(500)
+				ctx.JSON(models.ErrorResponse(err, 500))
 			} else {
 				err := userController.Register(&user)
 				if err != (models.Error{}){
@@ -61,8 +61,8 @@ var UserRoute = models.Route{
 
 			err := ctx.ReadJSON(&request)
 			if err != nil {
-				ctx.StatusCode(505)
-				ctx.JSON(models.ErrorResponse(err, 505))
+				ctx.StatusCode(500)
+				ctx.JSON(models.ErrorResponse(err, 500))
 			} else {
 				err := userController.ChangePassword(ctx.GetHeader("Authorization"), request.NewPassword)
 				if err != (models.Error{}){

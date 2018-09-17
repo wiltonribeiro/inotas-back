@@ -5,7 +5,7 @@ import (
 	"github.com/kataras/iris"
 	"inotas-back/database"
 	"inotas-back/controllers"
-)
+	)
 
 var ShopRoute = models.Route{
 	ApplyRoute: func(application *iris.Application, con *database.Connection) {
