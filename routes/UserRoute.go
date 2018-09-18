@@ -37,6 +37,16 @@ var UserRoute = models.Route{
 			}
 		})
 
+		application.Handle("GET", "/user", func(ctx iris.Context){
+			user, err := userController.GetUser(ctx.GetHeader("Authorization"))
+			if err != nil {
+				ctx.StatusCode(500)
+				ctx.JSON(models.ErrorResponse(err, 500))
+			} else{
+				ctx.JSON(user)
+			}
+		})
+
 		application.Handle("POST", "/register", func(ctx iris.Context){
 			var user models.User
 			err := ctx.ReadJSON(&user)

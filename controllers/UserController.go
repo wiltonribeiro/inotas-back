@@ -58,3 +58,21 @@ func (controller UserController) updatePassword(encryptPass, email string) (erro
 	stmt.Exec(encryptPass,email)
 	return
 }
+
+func (controller UserController) GetUser(token string) (user models.User ,err error){
+
+	authControl := AuthController{}
+	email, err  := authControl.CheckAuth(token)
+	if err != nil {
+		return
+	}
+
+	query := "SELECT city_id,state_initials,name FROM  \"user\" WHERE email = $1"
+	stmt, err := controller.DataBase.GetDB().Prepare(query)
+	if err != nil {
+		return
+	}
+	row := stmt.QueryRow(email)
+	row.Scan(&user.CityId, &user.StateInitials, &user.Name)
+	return
+}
