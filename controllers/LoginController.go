@@ -21,7 +21,7 @@ func (controller LoginController) Login(email, password string) (interface{}){
 	stmt, err := controller.DataBase.GetDB().Prepare(query)
 	if err != nil {
 		return models.Error{
-			Code:505,
+			Code:500,
 			Message:fmt.Sprint(err),
 		}
 	}
