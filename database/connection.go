@@ -17,10 +17,11 @@ type Connection struct {
 
 func CreateConnection(dbHost,dbName,dbUser,dbPassword string) (Connection,error) {
 
+	c := Connection{dbHost, dbName, dbUser, dbPassword, nil}
 	//dbInfo := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", c.dbUser, c.dbPassword, c.dbName)
 	//db, err := sql.Open("postgres", dbInfo)
 
-	c := Connection{dbHost, dbName, dbUser, dbPassword, nil}
+
 	dsn := fmt.Sprintf("host=%s dbname=%s user=%s password=%s sslmode=disable",c.dbHost, c.dbName, c.dbUser, c.dbPassword)
 	db, err := sql.Open("cloudsqlpostgres", dsn)
 

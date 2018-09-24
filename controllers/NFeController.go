@@ -34,7 +34,6 @@ func (controller NFeController) requestNFe(key string) (NFe* models.NFeRequest, 
 func (controller NFeController) GetContent(token, key string) (interface{}, error){
 	var err error = nil
 	NFe, err := controller.requestNFe(key)
-
 	authControl := AuthController{}
 	email, err  := authControl.CheckAuth(token)
 	if err != nil {
@@ -63,7 +62,6 @@ func (controller NFeController) GetContent(token, key string) (interface{}, erro
 			jsonFormat.Seller = data.(models.Seller)
 		}
 	}
-
 
 	err = controller.saveSeller(&jsonFormat.Seller)
 	err = controller.saveShop(jsonFormat.Shop)
@@ -98,8 +96,8 @@ func (controller NFeController) saveShop(shop models.Shop) (err error){
 }
 
 func (controller NFeController) saveSeller(seller* models.Seller) (err error){
-	stmt, _ := controller.DataBase.GetDB().Prepare("INSERT INTO seller(cnpj, name, street, number, postal_code, other_info, district, city_id, state_initials)" +
-		"VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)" +
+	stmt, _ := controller.DataBase.GetDB().Prepare("INSERT INTO seller(cnpj, name, street, number, postal_code, other_info, district, city_id, state_initials, city)" +
+		"VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9, $10)" +
 		"ON     CONFLICT (cnpj) DO UPDATE " +
 		"SET    name = excluded.name," +
 		"street = excluded.street," +
@@ -107,10 +105,11 @@ func (controller NFeController) saveSeller(seller* models.Seller) (err error){
 		"postal_code = excluded.postal_code," +
 		"other_info = excluded.other_info," +
 		"district = excluded.district," +
+		"city = excluded.city," +
 		"city_id = excluded.city_id,state_initials = excluded.state_initials;")
 
 	locationController := LocationController{controller.DataBase}
 	seller.CityId = locationController.GetIdCityByStateAndName(seller.StateInitials,strings.ToUpper(seller.City))
-	_ ,err = stmt.Exec(seller.Cnpj, seller.Name, seller.Street, seller.Number, seller.PostalCode, seller.OtherInfo, seller.District, seller.CityId, seller.StateInitials)
+	_ ,err = stmt.Exec(seller.Cnpj, seller.Name, seller.Street, seller.Number, seller.PostalCode, seller.OtherInfo, seller.District, seller.CityId, seller.StateInitials, seller.City)
 	return
 }

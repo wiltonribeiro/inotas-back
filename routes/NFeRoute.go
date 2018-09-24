@@ -13,16 +13,14 @@ var NFeRoute = models.Route{
 		controller := controllers.NFeController{DataBase:con}
 
 		application.Handle("GET", "/nfe/{key}", func(ctx iris.Context) {
-			if token := ctx.GetHeader("Authorization"); token != "" {
-				data, err := controller.GetContent(token, ctx.Params().Get("key"))
-				if err != nil {
-					ctx.StatusCode(505)
-					data = err
-				}
-				ctx.JSON(data)
-			} else {
-				ctx.StatusCode(403)
+			token := ctx.GetHeader("Authorization")
+			data, err := controller.GetContent(token, ctx.Params().Get("key"))
+			if err != nil {
+				ctx.StatusCode(500)
+				data = err
 			}
+			ctx.JSON(data)
+
 		})
 	},
 }
