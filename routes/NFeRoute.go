@@ -15,8 +15,8 @@ var NFeRoute = models.Route{
 		application.Handle("GET", "/nfe/{key}", func(ctx iris.Context) {
 			token := ctx.GetHeader("Authorization")
 			data, err := controller.GetContent(token, ctx.Params().Get("key"))
-			if err != nil {
-				ctx.StatusCode(500)
+			if err != (models.Error{}) {
+				ctx.StatusCode(err.Code)
 				data = err
 			}
 			ctx.JSON(data)

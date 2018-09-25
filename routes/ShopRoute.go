@@ -21,14 +21,13 @@ var ShopRoute = models.Route{
 			err := ctx.ReadJSON(&resultPost)
 			_ , errAuth := controlAuth.CheckAuth(ctx.GetHeader("Authorization"))
 
-			if errAuth != nil{
-				ctx.StatusCode(403)
+			if errAuth != (models.Error{}){
+				ctx.StatusCode(errAuth.Code)
 			} else if err != nil {
 				ctx.StatusCode(505)
 				ctx.JSON(models.ErrorResponse(err,505))
 			} else if result := controller.UpdateProductsCategories(resultPost.Products); result != (models.Error{}){
-				result := models.ErrorResponse(err,505)
-				ctx.StatusCode(505)
+				ctx.StatusCode(result.Code)
 				ctx.JSON(result)
 			}
 		})
@@ -41,15 +40,14 @@ var ShopRoute = models.Route{
 			err := ctx.ReadJSON(&resultPost)
 			_ , errAuth := controlAuth.CheckAuth(ctx.GetHeader("Authorization"))
 
-			if errAuth != nil{
-				ctx.StatusCode(403)
+			if errAuth != (models.Error{}){
+				ctx.StatusCode(errAuth.Code)
 			} else if err != nil {
 				ctx.StatusCode(505)
 				ctx.JSON(models.ErrorResponse(err,505))
-			} else if err := controller.UpdateShopAlias(resultPost.Shop); err != nil{
-				result := models.ErrorResponse(err,505)
-				ctx.StatusCode(505)
-				ctx.JSON(result)
+			} else if err := controller.UpdateShopAlias(resultPost.Shop); err != (models.Error{}){
+				ctx.StatusCode(err.Code)
+				ctx.JSON(err)
 			}
 		})
 

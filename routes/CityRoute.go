@@ -13,28 +13,49 @@ var CityRoute = models.Route{
 		controller := controllers.LocationController{DataBase:con}
 
 		application.Handle("GET", "/cities", func(ctx iris.Context) {
-			data := controller.GetCities()
+			data, err := controller.GetCities()
+			if err != (models.Error{}){
+				ctx.StatusCode(err.Code)
+				ctx.JSON(err)
+			}
 			ctx.JSON(data)
 		})
 
 		application.Handle("GET", "/cities/id/{id}", func(ctx iris.Context) {
 			id := ctx.Params().Get("id")
-			data := controller.GetCityById(id)
+			data, err := controller.GetCityById(id)
+			if err != (models.Error{}){
+				ctx.StatusCode(err.Code)
+				ctx.JSON(err)
+			}
 			ctx.JSON(data)
 		})
 
 		application.Handle("GET", "/cities/{state}", func(ctx iris.Context) {
-			data := controller.GetCitiesByState(ctx.Params().Get("state"))
+			data, err := controller.GetCitiesByState(ctx.Params().Get("state"))
+			if err != (models.Error{}){
+				ctx.StatusCode(err.Code)
+				ctx.JSON(err)
+			}
 			ctx.JSON(data)
 		})
 
 		application.Handle("GET", "/cities/{state}/{city}", func(ctx iris.Context) {
-			state := ctx.Params().Get("state")
-			city := ctx.Params().Get("city")
-			data := controller.GetIdCityByStateAndName(state,city)
-			ctx.JSON(struct {
+			var state, city string
+			state = ctx.Params().Get("state")
+			city = ctx.Params().Get("city")
+
+			data, err := controller.GetIdCityByStateAndName(state,city)
+
+			if err != (models.Error{}){
+				ctx.StatusCode(err.Code)
+				ctx.JSON(err)
+			}
+
+			var result = struct {
 				Id int `json:"id"`
-			}{data})
+			}{data}
+			ctx.JSON(result)
 		})
 	},
 }

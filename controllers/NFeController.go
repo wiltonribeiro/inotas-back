@@ -31,14 +31,21 @@ func (controller NFeController) requestNFe(key string) (NFe* models.NFeRequest, 
 	}
 }
 
-func (controller NFeController) GetContent(token, key string) (interface{}, error){
+func (controller NFeController) GetContent(token, key string) (data interface{}, errorR models.Error){
 	var err error = nil
 	NFe, err := controller.requestNFe(key)
-	authControl := AuthController{}
-	email, err  := authControl.CheckAuth(token)
+
 	if err != nil {
-		return nil, err
+		return nil, models.ErrorResponse(err, 500)
 	}
+
+	authControl := AuthController{}
+	email, errorR  := authControl.CheckAuth(token)
+
+	if errorR != (models.Error{}) {
+		return nil, errorR
+	}
+
 	filter := NFeFilter{}
 	c := filter.FilterData(email, *NFe)
 
@@ -68,9 +75,12 @@ func (controller NFeController) GetContent(token, key string) (interface{}, erro
 	if err == nil {
 		err = controller.saveProducts(jsonFormat.Products)
 		err = controller.saveItems(jsonFormat.Items)
-	}
 
-	return jsonFormat, err
+		data = jsonFormat
+		return
+	}
+	errorR = models.ErrorResponse(err, 500)
+	return
 }
 
 func (controller NFeController) saveProducts(products []models.Product) (err error){
@@ -109,7 +119,7 @@ func (controller NFeController) saveSeller(seller* models.Seller) (err error){
 		"city_id = excluded.city_id,state_initials = excluded.state_initials;")
 
 	locationController := LocationController{controller.DataBase}
-	seller.CityId = locationController.GetIdCityByStateAndName(seller.StateInitials,strings.ToUpper(seller.City))
+	seller.CityId,_ = locationController.GetIdCityByStateAndName(seller.StateInitials,strings.ToUpper(seller.City))
 	_ ,err = stmt.Exec(seller.Cnpj, seller.Name, seller.Street, seller.Number, seller.PostalCode, seller.OtherInfo, seller.District, seller.CityId, seller.StateInitials, seller.City)
 	return
 }

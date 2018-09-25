@@ -3,7 +3,6 @@ package controllers
 import (
 	"inotas-back/database"
 	"inotas-back/models"
-	"fmt"
 	"inotas-back/enviroment"
 	"errors"
 )
@@ -16,40 +15,39 @@ type Exists struct {
 	Password string `json:"password"`
 }
 
-func (controller LoginController) Login(email, password string) (interface{}){
+func (controller LoginController) Login(email, password string) (token interface{}, error models.Error){
 	query := "SELECT password FROM \"user\" WHERE email=$1"
 	stmt, err := controller.DataBase.GetDB().Prepare(query)
 	if err != nil {
-		return models.Error{
-			Code:500,
-			Message:fmt.Sprint(err),
-		}
+		error = models.ErrorResponse(err, 500)
+		return
 	}
+
 	value := stmt.QueryRow(email)
 	var search Exists
 	value.Scan(&search.Password)
 
 	if search.Password == "" {
-		return  models.ErrorResponse(errors.New("user not exist"), 403)
+		error = models.ErrorResponse(errors.New("user not exist"), 403)
+		return
 	}
 
-	return controller.checkLogin(search,email, password)
+	token, error = controller.checkLogin(search,email, password)
+	return
 }
 
-func (controller LoginController) checkLogin(search Exists, email string, password string) interface{}{
+func (controller LoginController) checkLogin(search Exists, email string, password string) (dataToken interface{}, error models.Error){
 	encrypt := EncryptController{enviroment.SecretKey}
 	ePass, err := encrypt.Decrypt(search.Password)
 
-	if ePass == password && err == nil {
+	if ePass == password && err == (models.Error{}) {
 		authControl := AuthController{}
 
 		token,_ := authControl.GenerateAuth(email)
-		return struct {
-			Token string `json:"token"`
-		}{
-			Token:token,
-		}
+		dataToken = struct {Token string `json:"token"`}{Token:token}
+		return
 	}
 
-	return models.ErrorResponse(errors.New("password incorrect"), 403)
+	error = models.ErrorResponse(errors.New("password incorrect"), 403)
+	return
 }

@@ -13,7 +13,11 @@ var StateRoute = models.Route{
 		controller := controllers.LocationController{DataBase:con}
 
 		application.Handle("GET", "/states", func(ctx iris.Context) {
-			data := controller.GetStates()
+			data, err := controller.GetStates()
+			if err != (models.Error{}){
+				ctx.StatusCode(err.Code)
+				ctx.JSON(err)
+			}
 			ctx.JSON(data)
 		})
 	},

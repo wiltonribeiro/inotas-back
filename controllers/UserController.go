@@ -37,14 +37,16 @@ func (controller UserController) ChangePassword(token, newPassword string) (erro
 	authControl := AuthController{}
 	encryptControl := EncryptController{enviroment.SecretKey}
 
-	email, err  := authControl.CheckAuth(token)
-	if err != nil {
-		return models.ErrorResponse(err, 401)
+	var email, password string
+	email, error  = authControl.CheckAuth(token)
+	if error != (models.Error{}) {
+		return
 	} else {
-		password, err := encryptControl.Encrypt([]byte(newPassword))
-		if err != (models.Error{}){
-			return err
+		password, error = encryptControl.Encrypt([]byte(newPassword))
+		if error != (models.Error{}){
+			return
 		}
+
 		return controller.updatePassword(password, email)
 	}
 }
@@ -59,17 +61,19 @@ func (controller UserController) updatePassword(encryptPass, email string) (erro
 	return
 }
 
-func (controller UserController) GetUser(token string) (user models.User ,err error){
+func (controller UserController) GetUser(token string) (user models.User , error models.Error){
 
+	var email string
 	authControl := AuthController{}
-	email, err  := authControl.CheckAuth(token)
-	if err != nil {
+	email, error  = authControl.CheckAuth(token)
+	if error != (models.Error{}) {
 		return
 	}
 
 	query := "SELECT city_id,state_initials,name FROM  \"user\" WHERE email = $1"
 	stmt, err := controller.DataBase.GetDB().Prepare(query)
 	if err != nil {
+		error = models.ErrorResponse(err, 500)
 		return
 	}
 	row := stmt.QueryRow(email)

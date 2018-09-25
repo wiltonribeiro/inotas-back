@@ -11,10 +11,10 @@ type ShopController struct {
 }
 
 func (controller ShopController) GetShop(token string) (shops []models.ShopComplete ,error models.Error){
+	var email string
 	authControl := AuthController{}
-	email, err  := authControl.CheckAuth(token)
-	if err != nil {
-		error = models.ErrorResponse(err,403)
+	email, error  = authControl.CheckAuth(token)
+	if error != (models.Error{}) {
 		return
 	}
 
@@ -43,7 +43,7 @@ func (controller ShopController) GetShop(token string) (shops []models.ShopCompl
 func (controller ShopController) UpdateProductsCategories(products []models.Product) (error models.Error){
 	for _, product := range products {
 		if err :=controller.updateProductCategory(product); err != nil{
-			return models.ErrorResponse(err, 505)
+			return models.ErrorResponse(err, 500)
 		}
 	}
 	return
@@ -61,11 +61,11 @@ func (controller ShopController) updateProductCategory(product models.Product) (
 	return err
 }
 
-func (controller ShopController) UpdateShopAlias(shop models.Shop) (err error){
+func (controller ShopController) UpdateShopAlias(shop models.Shop) (error models.Error){
 	query := "UPDATE shop SET alias = $1 WHERE nfe_key = $2;"
 	stmt, err := controller.DataBase.GetDB().Prepare(query)
 	if err != nil {
-		return err
+		return models.ErrorResponse(err, 500)
 	}
 
 	upperAlias := strings.ToUpper(shop.Alias)

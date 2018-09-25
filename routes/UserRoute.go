@@ -28,20 +28,22 @@ var UserRoute = models.Route{
 				ctx.StatusCode(500)
 				ctx.JSON(models.ErrorResponse(err, 500))
 			} else {
-				data := loginController.Login(request.Email, request.Password)
-				switch data.(type) {
-				case models.Error:
-					ctx.StatusCode(data.(models.Error).Code)
+				data, err := loginController.Login(request.Email, request.Password)
+				if err != (models.Error{}){
+					ctx.StatusCode(err.Code)
+					ctx.JSON(err)
+				} else {
+					ctx.JSON(data)
 				}
-				ctx.JSON(data)
+
 			}
 		})
 
 		application.Handle("GET", "/user", func(ctx iris.Context){
 			user, err := userController.GetUser(ctx.GetHeader("Authorization"))
-			if err != nil {
-				ctx.StatusCode(500)
-				ctx.JSON(models.ErrorResponse(err, 500))
+			if err != (models.Error{}) {
+				ctx.StatusCode(err.Code)
+				ctx.JSON(err)
 			} else{
 				ctx.JSON(user)
 			}
@@ -50,7 +52,6 @@ var UserRoute = models.Route{
 		application.Handle("POST", "/register", func(ctx iris.Context){
 			var user models.User
 			err := ctx.ReadJSON(&user)
-
 			if err != nil {
 				ctx.StatusCode(500)
 				ctx.JSON(models.ErrorResponse(err, 500))
