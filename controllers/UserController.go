@@ -1,82 +1,57 @@
 package controllers
 
 import (
-	"inotas-back/database"
 	"inotas-back/models"
 	"inotas-back/enviroment"
+	"inotas-back/DAOs"
 )
 
-type UserController struct {
-	DataBase* database.Connection
-}
+type UserController struct {}
 
-func (controller UserController) Register(user* models.User) (error models.Error){
+func (controller UserController) Register(user* models.User) (models.Error){
 
-	var result string
 	encrypt := EncryptController{enviroment.SecretKey}
-	result, error = encrypt.Encrypt([]byte(user.Password))
-	if error != (models.Error{}) {
-		return error
-	}
+	DAOUser := DAOs.DAOUser{}
+	var result string
 
+	result, err := encrypt.Encrypt([]byte(user.Password))
+	if err != (models.Error{}) {
+		return err
+	}
 	user.Password = result
-	query := "INSERT INTO \"user\" (email,password,city_id,state_initials,name) VALUES ($1,$2,$3,$4,$5)"
-	stmt, err := controller.DataBase.GetDB().Prepare(query)
-	if err != nil {
-		return  models.ErrorResponse(err, 401)
-	}
 
-	_,err = stmt.Exec(user.Email, user.Password, user.CityId, user.StateInitials, user.Name)
-	if err != nil {
-		return models.ErrorResponse(err, 409)
-	}
-	return
+
+	return DAOUser.SaveUser(user)
 }
 
-func (controller UserController) ChangePassword(token, newPassword string) (error models.Error){
+func (controller UserController) ChangePassword(token, newPassword string) (models.Error){
 	authControl := AuthController{}
 	encryptControl := EncryptController{enviroment.SecretKey}
+	DAOUser := DAOs.DAOUser{}
 
 	var email, password string
-	email, error  = authControl.CheckAuth(token)
-	if error != (models.Error{}) {
-		return
+	email, err  := authControl.CheckAuth(token)
+	if err != (models.Error{}) {
+		return err
 	} else {
-		password, error = encryptControl.Encrypt([]byte(newPassword))
-		if error != (models.Error{}){
-			return
+		password, err = encryptControl.Encrypt([]byte(newPassword))
+		if err != (models.Error{}){
+			return err
 		}
 
-		return controller.updatePassword(password, email)
+		return DAOUser.UpdatePassword(password, email)
 	}
-}
-
-func (controller UserController) updatePassword(encryptPass, email string) (error models.Error) {
-	query := "UPDATE \"user\" SET password = $1 WHERE email = $2"
-	stmt, err := controller.DataBase.GetDB().Prepare(query)
-	if err != nil {
-		return models.ErrorResponse(err, 500)
-	}
-	stmt.Exec(encryptPass,email)
-	return
 }
 
 func (controller UserController) GetUser(token string) (user models.User , error models.Error){
-
 	var email string
 	authControl := AuthController{}
+	DAOUser := DAOs.DAOUser{}
+
 	email, error  = authControl.CheckAuth(token)
 	if error != (models.Error{}) {
 		return
 	}
 
-	query := "SELECT city_id,state_initials,name FROM  \"user\" WHERE email = $1"
-	stmt, err := controller.DataBase.GetDB().Prepare(query)
-	if err != nil {
-		error = models.ErrorResponse(err, 500)
-		return
-	}
-	row := stmt.QueryRow(email)
-	row.Scan(&user.CityId, &user.StateInitials, &user.Name)
-	return
+	return DAOUser.GetUser(email)
 }
