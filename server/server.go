@@ -1,44 +1,28 @@
 package server
 
 import (
-	"log"
-	"inotas-back/database"
 	"github.com/kataras/iris"
-	"inotas-back/enviroment"
 	"inotas-back/models"
 	"inotas-back/routes"
 	"github.com/iris-contrib/middleware/cors"
 )
 
-func checkFail(err error){
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func initDB() (con database.Connection){
-	con, err := database.CreateConnection(enviroment.DbHost,enviroment.DbName,enviroment.DbUser,enviroment.DbPassword)
-	checkFail(err)
-	return
-}
-
-func initRoutes(routes []models.Route, db* database.Connection){
+func initRoutes(routes []models.Route){
 
 	app := iris.Default()
 	crs := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"}, // allows everything, use that to change the hosts.
+		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
 	})
 	app.Use(crs)
 
 	for _, item := range routes {
-		 item.ApplyRoute(app, db)
+		 item.ApplyRoute(app)
 	}
 	app.Run(iris.Addr(":8080"))
 }
 
 func InitAll(){
-	db := initDB()
 	r := []models.Route{
 		routes.StateRoute,
 		routes.CityRoute,
@@ -48,6 +32,5 @@ func InitAll(){
 		routes.ShopRoute,
 		routes.WelcomeRoute,
 	}
-	initRoutes(r, &db)
-	defer db.Close()
+	initRoutes(r)
 }
