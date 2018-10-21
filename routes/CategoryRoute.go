@@ -3,14 +3,13 @@ package routes
 import (
 	"inotas-back/models"
 	"github.com/kataras/iris"
-	"inotas-back/database"
 	"inotas-back/controllers"
 )
 
 var CategoryRoute = models.Route{
-	ApplyRoute: func(application *iris.Application, con *database.Connection) {
+	ApplyRoute: func(application *iris.Application) {
 
-		controller := controllers.CategoryController{DataBase:con}
+		controller := controllers.CategoryController{}
 		application.Handle("GET", "/categories", func(ctx iris.Context) {
 			data, err := controller.GetCategories()
 			if err != (models.Error{}){

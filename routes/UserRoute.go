@@ -3,7 +3,6 @@ package routes
 import (
 	"inotas-back/models"
 	"github.com/kataras/iris"
-	"inotas-back/database"
 	"inotas-back/controllers"
 )
 
@@ -13,13 +12,13 @@ type loginRequest struct {
 }
 
 var UserRoute = models.Route{
-	ApplyRoute: func(application *iris.Application, con *database.Connection) {
+	ApplyRoute: func(application *iris.Application) {
 
-		userController := controllers.UserController{DataBase:con}
+		userController := controllers.UserController{}
 
 		application.Handle("POST", "/login", func(ctx iris.Context) {
 
-			loginController := controllers.LoginController{DataBase:con}
+			loginController := controllers.LoginController{}
 
 			var request loginRequest
 			err := ctx.ReadJSON(&request)

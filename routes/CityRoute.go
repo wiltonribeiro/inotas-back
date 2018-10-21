@@ -3,14 +3,13 @@ package routes
 import (
 	"github.com/kataras/iris"
 	"inotas-back/models"
-	"inotas-back/database"
 	"inotas-back/controllers"
 )
 
 var CityRoute = models.Route{
-	func (application* iris.Application, con* database.Connection){
+	func (application* iris.Application){
 
-		controller := controllers.LocationController{DataBase:con}
+		controller := controllers.LocationController{}
 
 		application.Handle("GET", "/cities", func(ctx iris.Context) {
 			data, err := controller.GetCities()
@@ -45,7 +44,7 @@ var CityRoute = models.Route{
 			state = ctx.Params().Get("state")
 			city = ctx.Params().Get("city")
 
-			data, err := controller.GetIdCityByStateAndName(state,city)
+			data, err := controller.GetCityIdByStateAndName(state,city)
 
 			if err != (models.Error{}){
 				ctx.StatusCode(err.Code)

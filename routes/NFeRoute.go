@@ -3,24 +3,21 @@ package routes
 import (
 	"github.com/kataras/iris"
 	"inotas-back/models"
-	"inotas-back/database"
 	"inotas-back/controllers"
 )
 
 var NFeRoute = models.Route{
-	func (application* iris.Application, con* database.Connection){
+	func (application* iris.Application){
 
-		controller := controllers.NFeController{DataBase:con}
+		controller := controllers.NFeController{}
 
 		application.Handle("GET", "/nfe/{key}", func(ctx iris.Context) {
 			token := ctx.GetHeader("Authorization")
-			data, err := controller.GetContent(token, ctx.Params().Get("key"))
+			err := controller.GetContent(token, ctx.Params().Get("key"))
 			if err != (models.Error{}) {
 				ctx.StatusCode(err.Code)
-				data = err
+				ctx.JSON(err)
 			}
-			ctx.JSON(data)
-
 		})
 	},
 }

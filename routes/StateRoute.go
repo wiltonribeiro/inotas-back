@@ -3,14 +3,13 @@ package routes
 import (
 	"github.com/kataras/iris"
 	"inotas-back/models"
-	"inotas-back/database"
 	"inotas-back/controllers"
 )
 
 var StateRoute = models.Route{
-	func (application* iris.Application, con* database.Connection){
+	func (application* iris.Application){
 
-		controller := controllers.LocationController{DataBase:con}
+		controller := controllers.LocationController{}
 
 		application.Handle("GET", "/states", func(ctx iris.Context) {
 			data, err := controller.GetStates()
