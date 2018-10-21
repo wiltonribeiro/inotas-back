@@ -38,6 +38,22 @@ func (filter NFeFilter) getItems(NFe models.NFeRequest) ([]models.Item, []models
 	return items, products
 }
 
+func (filter NFeFilter) FilterData(email string, NFe models.NFeRequest) (chan interface{}){
+	c := make(chan interface{},4)
+	go func() {
+		c <- filter.getSeller(NFe)
+	}()
+	go func() {
+		c <- filter.getShop(NFe,email)
+	}()
+	go func() {
+		product, item :=  filter.getItems(NFe)
+		c <- product
+		c <- item
+	}()
+	return c
+}
+
 func (filter NFeFilter) getShop(NFe models.NFeRequest, email string) (shop models.Shop){
 
 	payment := NFe.PaymentType
@@ -74,18 +90,3 @@ func (filter NFeFilter) getSeller(NFe models.NFeRequest) (seller models.Seller){
 	return
 }
 
-func (filter NFeFilter) FilterData(email string, NFe models.NFeRequest) (chan interface{}){
-	c := make(chan interface{},4)
-	go func() {
-		c <- filter.getSeller(NFe)
-	}()
-	go func() {
-		c <- filter.getShop(NFe,email)
-	}()
-	go func() {
-		product, item :=  filter.getItems(NFe)
-		c <- product
-		c <- item
-	}()
-	return c
-}
