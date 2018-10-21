@@ -8,8 +8,11 @@ type Error struct {
 }
 
 func ErrorResponse(err error, code int) (Error){
-	return Error{
+
+	response := Error{
 		Code:code,
 		Message:fmt.Sprint(err),
 	}
+	fmt.Println(response)
+	return response
 }
