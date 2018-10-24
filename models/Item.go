@@ -8,5 +8,13 @@ type Item struct {
 	Quantity float64 `json:"quantity"`
 }
 
+type ItemRequest struct {
+	Id int `json:"id"`
+	TotalCost float64 `json:"total_cost"`
+	Quantity float64 `json:"quantity"`
+	Product Product `json:"product"`
+}
+
+
 
 
