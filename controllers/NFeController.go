@@ -29,20 +29,23 @@ func (controller NFeController) requestNFe(key string) (NFe* models.NFeRequest, 
 }
 
 func (controller NFeController) GetContent(token, key string) (errorR models.Error){
-	DAONFe := DAOs.DAONFe{}
-
-	var err error = nil
-	NFe, err := controller.requestNFe(key)
-
-	if err != nil {
-		return models.ErrorResponse(err, 500)
-	}
+	DAOSeller := DAOs.DAOSeller{}
+	DAOProduct := DAOs.DAOProduct{}
+	DAOItem := DAOs.DAOItem{}
+	DAOShop := DAOs.DAOShop{}
 
 	authControl := AuthController{}
 	email, errorR  := authControl.CheckAuth(token)
 
 	if errorR != (models.Error{}) {
 		return errorR
+	}
+
+	var err error = nil
+	NFe, err := controller.requestNFe(key)
+
+	if err != nil {
+		return models.ErrorResponse(err, 500)
 	}
 
 	filter := NFeFilter{}
@@ -69,11 +72,11 @@ func (controller NFeController) GetContent(token, key string) (errorR models.Err
 		}
 	}
 
-	err = DAONFe.SaveSeller(&jsonFormat.Seller)
-	err = DAONFe.SaveShop(jsonFormat.Shop)
+	err = DAOSeller.SaveSeller(&jsonFormat.Seller)
+	err = DAOShop.SaveShop(jsonFormat.Shop)
 	if err == nil {
-		err = DAONFe.SaveProducts(jsonFormat.Products)
-		err = DAONFe.SaveItems(jsonFormat.Items)
+		err = DAOProduct.SaveProducts(jsonFormat.Products)
+		err = DAOItem.SaveItems(jsonFormat.Items)
 		return
 	}
 	errorR = models.ErrorResponse(err, 500)
