@@ -40,11 +40,11 @@ func (dao *DAOShop) updateProductCategory(product models.Product, con Database.C
 	return err
 }
 
-func (dao *DAOShop)  GetShop(email string) (shops []models.ShopComplete ,error models.Error){
+func (dao *DAOShop)  GetShop(email string) (shops []models.ShopRequest,error models.Error){
 	con, err := Database.OpenConnection()
 	defer con.Close()
 
-	query := "SELECT shop.*, seller.* FROM shop INNER JOIN seller ON shop.seller_cnpj = seller.cnpj WHERE shop.user_email = $1;"
+	query := "SELECT sp.nfe_key, sp.alias, sp.date, sp.payment, sp.total_cost, sl.cnpj, sl.name, sl.state_initials, city.name FROM shop sp, seller sl, city where sp.seller_cnpj = sl.cnpj and sp.user_email = $1 and city.id = sl.city_id;"
 	stmt, err := con.GetDB().Prepare(query)
 	if err != nil {
 		error = models.ErrorResponse(err,500)
@@ -58,11 +58,14 @@ func (dao *DAOShop)  GetShop(email string) (shops []models.ShopComplete ,error m
 		return
 	}
 	for rows.Next(){
-		var shop models.ShopComplete
-		rows.Scan(&shop.NFeKey, &shop.TotalCost, &shop.Payment, &shop.Date, &shop.UserEmail, &shop.SellerCnpj, &shop.Alias,
-			&shop.Seller.Cnpj, &shop.Seller.Name, &shop.Seller.Street, &shop.Seller.Number, &shop.Seller.PostalCode, &shop.Seller.OtherInfo, &shop.Seller.District, &shop.Seller.CityId, &shop.Seller.StateInitials)
+		var shop models.ShopRequest
+		rows.Scan(&shop.NFeKey, &shop.Alias, &shop.Date, &shop.Payment, &shop.TotalCost, &shop.Seller.Cnpj,
+			&shop.Seller.Name, &shop.Seller.StateInitials, &shop.Seller.City)
+
 		shops = append(shops,shop)
 	}
+
+
 	return
 }
 
@@ -79,6 +82,15 @@ func (dao *DAOShop) UpdateShopAlias(shop models.Shop) (error models.Error){
 
 	upperAlias := strings.ToUpper(shop.Alias)
 	_, err = stmt.Exec(strings.TrimSpace(upperAlias), shop.NFeKey)
+	return
+}
+
+func (dao DAOShop) SaveShop(shop models.Shop) (err error){
+	con, err := Database.OpenConnection()
+
+	stmt, _ := con.GetDB().Prepare("INSERT INTO shop(nfe_key, total_cost, payment, date, user_email, seller_cnpj, alias) values($1,$2,$3,$4,$5,$6,$7)")
+	_ ,err = stmt.Exec(shop.NFeKey, shop.TotalCost, shop.Payment, shop.Date, shop.UserEmail, shop.SellerCnpj, shop.Alias)
+	con.Close()
 	return
 }
 
