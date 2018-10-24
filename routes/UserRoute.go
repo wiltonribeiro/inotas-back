@@ -6,12 +6,8 @@ import (
 	"inotas-back/controllers"
 )
 
-type loginRequest struct {
-	Email string `json:"email"`
-	Password string `json:"password"`
-}
-
 var UserRoute = models.Route{
+
 	ApplyRoute: func(application *iris.Application) {
 
 		userController := controllers.UserController{}
@@ -20,12 +16,15 @@ var UserRoute = models.Route{
 
 			loginController := controllers.LoginController{}
 
-			var request loginRequest
-			err := ctx.ReadJSON(&request)
+			request := struct {
+				Email string `json:"email"`
+				Password string `json:"password"`
+			}{}
 
+			err := ctx.ReadJSON(&request)
 			if err != nil {
-				ctx.StatusCode(500)
-				ctx.JSON(models.ErrorResponse(err, 500))
+				ctx.StatusCode(400)
+				ctx.JSON(models.ErrorResponse(err, 400))
 			} else {
 				data, err := loginController.Login(request.Email, request.Password)
 				if err != (models.Error{}){
@@ -39,7 +38,8 @@ var UserRoute = models.Route{
 		})
 
 		application.Handle("GET", "/user", func(ctx iris.Context){
-			user, err := userController.GetUser(ctx.GetHeader("Authorization"))
+			token := ctx.GetHeader("Authorization")
+			user, err := userController.GetUser(token)
 			if err != (models.Error{}) {
 				ctx.StatusCode(err.Code)
 				ctx.JSON(err)
@@ -51,9 +51,10 @@ var UserRoute = models.Route{
 		application.Handle("POST", "/register", func(ctx iris.Context){
 			var user models.User
 			err := ctx.ReadJSON(&user)
+
 			if err != nil {
-				ctx.StatusCode(500)
-				ctx.JSON(models.ErrorResponse(err, 500))
+				ctx.StatusCode(400)
+				ctx.JSON(models.ErrorResponse(err, 400))
 			} else {
 				err := userController.Register(&user)
 				if err != (models.Error{}){
@@ -74,7 +75,8 @@ var UserRoute = models.Route{
 				ctx.StatusCode(500)
 				ctx.JSON(models.ErrorResponse(err, 500))
 			} else {
-				err := userController.ChangePassword(ctx.GetHeader("Authorization"), request.NewPassword)
+				token := ctx.GetHeader("Authorization")
+				err := userController.ChangePassword(token, request.NewPassword)
 				if err != (models.Error{}){
 					ctx.StatusCode(err.Code)
 					ctx.JSON(err)
