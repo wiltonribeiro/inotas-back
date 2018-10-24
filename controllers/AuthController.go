@@ -24,7 +24,9 @@ func (controller AuthController) GenerateAuth(email string) (tokenString string,
 
 	mySigningKey := enviroment.SecretKey
 	tokenString, err := token.SignedString(mySigningKey)
-	error = models.ErrorResponse(err, 500)
+	if err != nil {
+		error = models.ErrorResponse(err, 500)
+	}
 
 	return
 }
