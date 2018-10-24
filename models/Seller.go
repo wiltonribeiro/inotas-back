@@ -13,5 +13,12 @@ type Seller struct {
 	StateInitials string `json:"state_initials"`
 }
 
+type SellerMinimum struct {
+	Cnpj string `json:"cnpj"`
+	Name string `json:"name"`
+	City string `json:"city"`
+	StateInitials string `json:"state_initials"`
+}
+
 
 
