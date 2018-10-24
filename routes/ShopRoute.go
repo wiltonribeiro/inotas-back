@@ -10,7 +10,6 @@ var ShopRoute = models.Route{
 	ApplyRoute: func(application *iris.Application) {
 
 		controller := controllers.ShopController{}
-		controlAuth := controllers.AuthController{}
 
 		application.Handle("POST", "/shop/products/update", func(ctx iris.Context) {
 			var resultPost struct {
@@ -18,14 +17,12 @@ var ShopRoute = models.Route{
 			}
 
 			err := ctx.ReadJSON(&resultPost)
-			_ , errAuth := controlAuth.CheckAuth(ctx.GetHeader("Authorization"))
+			token := ctx.GetHeader("Authorization")
 
-			if errAuth != (models.Error{}){
-				ctx.StatusCode(errAuth.Code)
-			} else if err != nil {
-				ctx.StatusCode(505)
-				ctx.JSON(models.ErrorResponse(err,505))
-			} else if result := controller.UpdateProductsCategories(resultPost.Products); result != (models.Error{}){
+			if err != nil {
+				ctx.StatusCode(400)
+				ctx.JSON(models.ErrorResponse(err,400))
+			} else if result := controller.UpdateProductsCategories(token,resultPost.Products); result != (models.Error{}){
 				ctx.StatusCode(result.Code)
 				ctx.JSON(result)
 			}
@@ -37,14 +34,12 @@ var ShopRoute = models.Route{
 			}
 
 			err := ctx.ReadJSON(&resultPost)
-			_ , errAuth := controlAuth.CheckAuth(ctx.GetHeader("Authorization"))
+			token := ctx.GetHeader("Authorization")
 
-			if errAuth != (models.Error{}){
-				ctx.StatusCode(errAuth.Code)
-			} else if err != nil {
-				ctx.StatusCode(505)
-				ctx.JSON(models.ErrorResponse(err,505))
-			} else if err := controller.UpdateShopAlias(resultPost.Shop); err != (models.Error{}){
+			if err != nil {
+				ctx.StatusCode(400)
+				ctx.JSON(models.ErrorResponse(err,400))
+			} else if err := controller.UpdateShopAlias(token,resultPost.Shop); err != (models.Error{}){
 				ctx.StatusCode(err.Code)
 				ctx.JSON(err)
 			}
@@ -53,6 +48,18 @@ var ShopRoute = models.Route{
 		application.Handle("GET", "/shop/all", func(ctx iris.Context){
 			token := ctx.GetHeader("Authorization")
 			result, err := controller.GetShop(token)
+			if err != (models.Error{}){
+				ctx.StatusCode(err.Code)
+				ctx.JSON(err)
+			} else{
+				ctx.JSON(result)
+			}
+		})
+
+		application.Handle("GET", "/shop/items/{nfe}", func(ctx iris.Context){
+			nfe := ctx.Params().Get("nfe")
+			token := ctx.GetHeader("Authorization")
+			result, err := controller.GetItems(token, nfe)
 			if err != (models.Error{}){
 				ctx.StatusCode(err.Code)
 				ctx.JSON(err)
