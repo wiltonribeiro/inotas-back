@@ -29,3 +29,16 @@ func (dao DAOSeller) SaveSeller(seller* models.Seller) (err error){
 	_ ,err = stmt.Exec(seller.Cnpj, seller.Name, seller.Street, seller.Number, seller.PostalCode, seller.OtherInfo, seller.District, seller.CityId, seller.StateInitials, seller.City)
 	return
 }
+
+func (dao DAOSeller) GetSeller(key string) (seller models.Seller, error models.Error){
+	con, err := Database.OpenConnection()
+
+	stmt, err := con.GetDB().Prepare("select s.*, c.name from seller s, city c where c.id = s.city_id and cnpj = $1")
+	if err != nil{
+		error = models.ErrorResponse(err, 500)
+		return
+	}
+	stmt.QueryRow(key).Scan(&seller.Cnpj, &seller.Name, &seller.Street, &seller.Number, &seller.PostalCode, &seller.OtherInfo, &seller.District, &seller.CityId, &seller.StateInitials, &seller.City)
+
+	return
+}
