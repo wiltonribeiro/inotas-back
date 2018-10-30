@@ -31,6 +31,7 @@ func InitAll(){
 		routes.CategoryRoute,
 		routes.ShopRoute,
 		routes.WelcomeRoute,
+		routes.SellerRoute,
 	}
 	initRoutes(r)
 }
