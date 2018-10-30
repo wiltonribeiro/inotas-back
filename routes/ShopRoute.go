@@ -47,7 +47,7 @@ var ShopRoute = models.Route{
 
 		application.Handle("GET", "/shop/all", func(ctx iris.Context){
 			token := ctx.GetHeader("Authorization")
-			result, err := controller.GetShop(token)
+			result, err := controller.GetShopList(token)
 			if err != (models.Error{}){
 				ctx.StatusCode(err.Code)
 				ctx.JSON(err)

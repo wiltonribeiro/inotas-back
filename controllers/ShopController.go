@@ -7,7 +7,7 @@ import (
 
 type ShopController struct {}
 
-func (controller ShopController) GetShop(token string) ([]models.ShopRequest, models.Error){
+func (controller ShopController) GetShopList(token string) ([]models.ShopRequest, models.Error){
 	var email string
 	authControl := AuthController{}
 	email, err  := authControl.CheckAuth(token)
@@ -16,7 +16,7 @@ func (controller ShopController) GetShop(token string) ([]models.ShopRequest, mo
 	}
 
 	DAOShop := DAOs.DAOShop{}
-	return DAOShop.GetShop(email)
+	return DAOShop.GetShopList(email)
 }
 
 func (controller ShopController) UpdateProductsCategories(token string, products []models.Product) models.Error{

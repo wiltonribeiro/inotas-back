@@ -40,7 +40,7 @@ func (dao *DAOShop) updateProductCategory(product models.Product, con Database.C
 	return err
 }
 
-func (dao *DAOShop)  GetShop(email string) (shops []models.ShopRequest,error models.Error){
+func (dao *DAOShop) GetShopList(email string) (shops []models.ShopRequest,error models.Error){
 	con, err := Database.OpenConnection()
 	defer con.Close()
 
