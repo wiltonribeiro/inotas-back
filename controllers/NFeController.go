@@ -72,6 +72,10 @@ func (controller NFeController) GetContent(token, key string) (errorR models.Err
 		}
 	}
 
+
+
+
+
 	err = DAOSeller.SaveSeller(&jsonFormat.Seller)
 	err = DAOShop.SaveShop(jsonFormat.Shop)
 	if err == nil {
