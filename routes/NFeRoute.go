@@ -11,11 +11,24 @@ var NFeRoute = models.Route{
 
 		controller := controllers.NFeController{}
 
-		application.Handle("GET", "/nfe/{key}", func(ctx iris.Context) {
+		application.Handle("POST", "/nfe", func(ctx iris.Context) {
+			var resultPost struct {
+				NfeKey string `json:"nfe_key"`
+			}
+
+			err := ctx.ReadJSON(&resultPost)
 			token := ctx.GetHeader("Authorization")
-			err := controller.GetContent(token, ctx.Params().Get("key"))
-			if err != (models.Error{}) {
-				ctx.StatusCode(err.Code)
+			var errorR models.Error
+
+			if err != nil {
+				errorR = models.ErrorResponse(err, 500)
+				ctx.StatusCode(errorR.Code)
+				ctx.JSON(errorR)
+			}
+
+			errorR = controller.GetContent(token, resultPost.NfeKey)
+			if errorR != (models.Error{}) {
+				ctx.StatusCode(errorR.Code)
 				ctx.JSON(err)
 			}
 		})
