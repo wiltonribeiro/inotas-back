@@ -44,7 +44,7 @@ func (dao *DAOShop) GetShopList(email string) (shops []models.ShopRequest,error 
 	con, err := Database.OpenConnection()
 	defer con.Close()
 
-	query := "SELECT sp.nfe_key, sp.alias, sp.date, sp.payment, sp.total_cost, sl.cnpj, sl.name, sl.state_initials, city.name FROM shop sp, seller sl, city where sp.seller_cnpj = sl.cnpj and sp.user_email = $1 and city.id = sl.city_id;"
+	query := "SELECT sp.nfe_key, sp.alias, sp.date, sp.payment, sp.total_cost, sl.cnpj, sl.name, sl.state_initials, city.name FROM shop sp, seller sl, city where sp.seller_cnpj = sl.cnpj and sp.user_email = $1 and city.id = sl.city_id order by sp.date desc;"
 	stmt, err := con.GetDB().Prepare(query)
 	if err != nil {
 		error = models.ErrorResponse(err,500)
@@ -90,6 +90,24 @@ func (dao DAOShop) SaveShop(shop models.Shop) (err error){
 
 	stmt, _ := con.GetDB().Prepare("INSERT INTO shop(nfe_key, total_cost, payment, date, user_email, seller_cnpj, alias) values($1,$2,$3,$4,$5,$6,$7)")
 	_ ,err = stmt.Exec(shop.NFeKey, shop.TotalCost, shop.Payment, shop.Date, shop.UserEmail, shop.SellerCnpj, shop.Alias)
+	con.Close()
+	return
+}
+
+func (dao DAOShop) DeleteShop(key string, email string) (error models.Error){
+	con, err := Database.OpenConnection()
+
+	if err!=nil {
+		return models.ErrorResponse(err, 500)
+	}
+
+	stmt, _ := con.GetDB().Prepare("select shopDelete($1, $2)")
+	_ ,err = stmt.Exec(key, email)
+
+	if err!=nil {
+		error = models.ErrorResponse(err, 500)
+	}
+
 	con.Close()
 	return
 }

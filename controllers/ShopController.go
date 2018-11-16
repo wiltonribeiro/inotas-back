@@ -51,6 +51,18 @@ func (controller ShopController) GetItems(token string,nfe string) ([]models.Ite
 		return nil, err
 	}
 
-	DAOShop := DAOs.DAOItem{}
-	return DAOShop.GetItems(nfe)
+	DAOItem := DAOs.DAOItem{}
+	return DAOItem.GetItems(nfe)
+}
+
+func (controller ShopController) DeleteShop(token string,nfe string) (models.Error){
+	authControl := AuthController{}
+	email, err  := authControl.CheckAuth(token)
+
+	if err != (models.Error{}) {
+		return err
+	}
+
+	DAOShop := DAOs.DAOShop{}
+	return DAOShop.DeleteShop(nfe, email)
 }

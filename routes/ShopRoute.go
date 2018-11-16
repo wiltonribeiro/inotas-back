@@ -67,5 +67,23 @@ var ShopRoute = models.Route{
 				ctx.JSON(result)
 			}
 		})
+
+		application.Handle("POST", "/shop/delete", func(ctx iris.Context) {
+			var resultPost struct {
+				NfeKey string `json:"nfe_key"`
+			}
+
+			err := ctx.ReadJSON(&resultPost)
+			token := ctx.GetHeader("Authorization")
+
+			if err != nil {
+				var errorR = models.ErrorResponse(err,400)
+				ctx.StatusCode(errorR.Code)
+				ctx.JSON(errorR)
+			} else if result := controller.DeleteShop(token,resultPost.NfeKey); result != (models.Error{}){
+				ctx.StatusCode(result.Code)
+				ctx.JSON(result)
+			}
+		})
 	},
 }
