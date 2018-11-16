@@ -70,7 +70,7 @@ func (dao *DAOCity) GetCityById(id string) (city models.City, error models.Error
 func (dao *DAOCity) GetCityIdByStateAndName(initials string, city string)(id int, error models.Error){
 	con, err := Database.OpenConnection()
 
-	query := "SELECT id FROM city WHERE state_initials = $1 and name = $2"
+	query := "SELECT id FROM city WHERE state_initials = $1 and unaccent(name) = $2"
 	stmt, err := con.GetDB().Prepare(query)
 	if err != nil { return 0, models.ErrorResponse(err, 500)}
 
